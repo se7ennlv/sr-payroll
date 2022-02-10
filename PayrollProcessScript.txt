@@ -1,0 +1,68 @@
+=> Related Tables: 
+	- PRCALD
+
+=> Related Fields: 
+	- PRCALD_AMOUNT
+	- PRCALD_FUNCAMT
+	- PRCALD_ITEMCODE 
+
+=> Related Code: 
+	- OTHEAN = Extra Pay
+	- SALARY
+	- NSSO = SSO
+	- SALDUTY = Tax
+	- WD = Work Day
+================================================
+
+=> Step#1 (Update Employee ID to correct)
+UPDATE TempPayrollForCoVid
+SET EmpID = HREMP_EMPID
+FROM TempPayrollForCoVid
+INNER JOIN HREMP ON EmpCode = HREMP_EMPCODE
+
+=> Step#2 (Update not working staff to 0)
+==============================
+UPDATE PRCALD
+SET PRCALD_AMOUNT = 0, PRCALD_FUNCAMT = 0
+FROM PRCALD
+WHERE PRCALD_CNTBATCH IN('xxx', 'xxx', 'xxx')
+AND PRCALD_EMPLOYEE NOT IN(SELECT EmpID FROM TempPayrollForCoVid)
+
+
+=> Step#3 (Update Salary)
+=====================================
+UPDATE PRCALD
+SET PRCALD_AMOUNT = Earning, PRCALD_FUNCAMT = Earning
+FROM PRCALD
+INNER JOIN TempPayrollForCoVid ON EmpID = PRCALD_EMPLOYEE
+WHERE PRCALD_CNTBATCH IN('xxx', 'xxx', 'xxx')
+AND PRCALD_ITEMCODE = 'SALARY'
+
+=> Step#4 (Update SSO)
+============================================\
+UPDATE PRCALD
+SET PRCALD_AMOUNT = SSO, PRCALD_FUNCAMT = SSO
+FROM PRCALD
+INNER JOIN TempPayrollForCoVid ON EmpID = PRCALD_EMPLOYEE
+WHERE PRCALD_CNTBATCH IN('xxx', 'xxx', 'xxx')
+AND PRCALD_ITEMCODE = 'NSSO'
+
+
+=> Step#5 (Update Tax)
+===============================
+UPDATE PRCALD
+SET PRCALD_AMOUNT = Tax, PRCALD_FUNCAMT = Tax
+FROM PRCALD
+INNER JOIN TempPayrollForCoVid ON EmpID = PRCALD_EMPLOYEE
+WHERE PRCALD_CNTBATCH IN('xxx', 'xxx', 'xxx')
+AND PRCALD_ITEMCODE = 'SALDUTY'
+
+
+=> Step#5 (Update Work Day)
+=============================
+UPDATE PRCALD
+SET PRCALD_AMOUNT = WorkDay, PRCALD_FUNCAMT = WorkDay
+FROM PRCALD
+INNER JOIN TempPayrollForCoVid ON EmpID = PRCALD_EMPLOYEE
+WHERE PRCALD_CNTBATCH IN('xxx', 'xxx', 'xx')
+AND PRCALD_ITEMCODE = 'WD'
